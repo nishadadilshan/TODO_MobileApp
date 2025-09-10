@@ -1,44 +1,50 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { Todo } from "@/types/Todo";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import {
+  Alert,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
-import { Todo } from '@/types/Todo';
+} from "react-native-reanimated";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
-type TodoPriority = Todo['priority'];
-import { useThemeColor } from '@/hooks/useThemeColor';
+type TodoPriority = Todo["priority"];
 
 interface AddTodoProps {
-  onAddTodo: (todo: Omit<Todo, 'id' | 'createdAt'>) => void;
+  onAddTodo: (todo: Omit<Todo, "id" | "createdAt">) => void;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export function AddTodo({ onAddTodo }: AddTodoProps) {
-  const [text, setText] = useState('');
-  const [priority, setPriority] = useState<TodoPriority>('medium');
-  const [category, setCategory] = useState('');
+  const [text, setText] = useState("");
+  const [priority, setPriority] = useState<TodoPriority>("medium");
+  const [category, setCategory] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const iconColor = useThemeColor({}, 'icon');
-  const tintColor = useThemeColor({}, 'tint');
-  const borderColor = useThemeColor({}, 'icon');
+
+  const backgroundColor = useThemeColor({}, "background");
+  const textColor = useThemeColor({}, "text");
+  const iconColor = useThemeColor({}, "icon");
+  const tintColor = useThemeColor({}, "tint");
+  const borderColor = useThemeColor({}, "icon");
 
   const expandAnimation = useSharedValue(0);
   const rotateAnimation = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      height: expandAnimation.value,
-      opacity: expandAnimation.value / 200,
+      maxHeight: expandAnimation.value,
+      opacity: expandAnimation.value / 180,
     };
   });
 
@@ -51,14 +57,16 @@ export function AddTodo({ onAddTodo }: AddTodoProps) {
   const handleToggleExpanded = () => {
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
-    
-    expandAnimation.value = withTiming(newExpanded ? 200 : 0, { duration: 300 });
+
+    expandAnimation.value = withTiming(newExpanded ? 180 : 0, {
+      duration: 300,
+    });
     rotateAnimation.value = withSpring(newExpanded ? 45 : 0);
   };
 
   const handleAddTodo = () => {
     if (!text.trim()) {
-      Alert.alert('Error', 'Please enter a todo item');
+      Alert.alert("Error", "Please enter a todo item");
       return;
     }
 
@@ -69,18 +77,22 @@ export function AddTodo({ onAddTodo }: AddTodoProps) {
       category: category.trim() || undefined,
     });
 
-    setText('');
-    setCategory('');
-    setPriority('medium');
+    setText("");
+    setCategory("");
+    setPriority("medium");
     setIsExpanded(false);
     expandAnimation.value = withTiming(0, { duration: 300 });
     rotateAnimation.value = withSpring(0);
   };
 
-  const priorityOptions: { value: TodoPriority; label: string; color: string }[] = [
-    { value: 'low', label: 'Low', color: '#6BCF7F' },
-    { value: 'medium', label: 'Medium', color: '#FFD93D' },
-    { value: 'high', label: 'High', color: '#FF6B6B' },
+  const priorityOptions: {
+    value: TodoPriority;
+    label: string;
+    color: string;
+  }[] = [
+    { value: "low", label: "Low", color: "#6BCF7F" },
+    { value: "medium", label: "Medium", color: "#FFD93D" },
+    { value: "high", label: "High", color: "#FF6B6B" },
   ];
 
   return (
@@ -94,7 +106,7 @@ export function AddTodo({ onAddTodo }: AddTodoProps) {
           onChangeText={setText}
           multiline
         />
-        
+
         <TouchableOpacity
           style={[styles.expandButton, { backgroundColor: tintColor }]}
           onPress={handleToggleExpanded}
@@ -115,14 +127,16 @@ export function AddTodo({ onAddTodo }: AddTodoProps) {
                 style={[
                   styles.priorityButton,
                   { borderColor: option.color },
-                  priority === option.value && { backgroundColor: option.color }
+                  priority === option.value && {
+                    backgroundColor: option.color,
+                  },
                 ]}
                 onPress={() => setPriority(option.value)}
               >
                 <ThemedText
                   style={[
                     styles.priorityButtonText,
-                    priority === option.value && { color: 'white' }
+                    priority === option.value && { color: "white" },
                   ]}
                 >
                   {option.label}
@@ -133,7 +147,9 @@ export function AddTodo({ onAddTodo }: AddTodoProps) {
         </View>
 
         <View style={styles.categorySection}>
-          <ThemedText style={styles.sectionTitle}>Category (Optional)</ThemedText>
+          <ThemedText style={styles.sectionTitle}>
+            Category (Optional)
+          </ThemedText>
           <TextInput
             style={[styles.categoryInput, { color: textColor, borderColor }]}
             placeholder="e.g., Work, Personal, Shopping"
@@ -143,13 +159,14 @@ export function AddTodo({ onAddTodo }: AddTodoProps) {
           />
         </View>
 
-        <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: tintColor }]}
-          onPress={handleAddTodo}
-        >
-          <Ionicons name="checkmark" size={20} color="black" />
-          <ThemedText style={styles.addButtonText}>Add Todo</ThemedText>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: tintColor }]}
+            onPress={handleAddTodo}
+          >
+            <Ionicons name="checkmark" size={20} color="black" />
+            <ThemedText style={styles.addButtonText}>Add Todo</ThemedText>
+          </TouchableOpacity>
+
       </AnimatedView>
     </ThemedView>
   );
@@ -160,7 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -170,8 +187,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
     gap: 12,
   },
   textInput: {
@@ -187,9 +204,9 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -199,20 +216,19 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   expandedContent: {
-    overflow: 'hidden',
     marginTop: 16,
   },
   prioritySection: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
     opacity: 0.8,
   },
   priorityButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   priorityButton: {
@@ -221,14 +237,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   priorityButtonText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   categorySection: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   categoryInput: {
     borderWidth: 1,
@@ -237,17 +253,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 12,
     borderRadius: 8,
-    marginBottom: 16,
     gap: 8,
   },
   addButtonText: {
-    color: 'black',
+    color: "black",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
